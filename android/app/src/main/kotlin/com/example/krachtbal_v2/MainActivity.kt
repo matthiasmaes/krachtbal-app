@@ -1,4 +1,4 @@
-package com.example.krachtbal_v2
+package com.example.krachtbal
 
 import io.flutter.embedding.android.FlutterActivity
 
