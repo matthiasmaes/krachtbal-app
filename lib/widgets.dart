@@ -101,12 +101,17 @@ class CustomWidget_Card extends StatelessWidget {
                 ],
               ),
             ),
-            const Positioned(
+            Positioned(
               right: 25,
               top: 15,
-              child: Icon(
-                Icons.star,
-                color: Colors.grey,
+              child: GestureDetector(
+                onTap: () {
+                  print('test');
+                },
+                child: const Icon(
+                  Icons.star,
+                  color: Colors.grey,
+                ),
               ),
             ),
           ],
