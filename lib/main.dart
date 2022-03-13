@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'widgets.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -47,6 +48,24 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+class LocalPersitance {
+  Future<void> storeData(String key, String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(key, value);
+  }
+
+  Future<String> readData(key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(key) ?? "No data found";
+  }
+
+  String getFavorite() {
+    String local = "";
+    LocalPersitance().readData('reeks').then((String result) => local = result);
+    return local;
+  }
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
@@ -65,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.calendar_today),
-                  label: 'Home',
+                  label: 'Calender',
                 ),
               ],
             ),
@@ -91,6 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         return CustomWidget_Card(
                           data: parsedData[parsedData.keys.elementAt(index)],
                           title: parsedData.keys.elementAt(index),
+                          favorite: LocalPersitance().getFavorite(),
                         );
                       },
                       childCount: parsedData.keys.length,

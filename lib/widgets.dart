@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
+import 'main.dart';
 
-class CustomWidget_Card extends StatelessWidget {
+class CustomWidget_Card extends StatefulWidget {
   final String title;
   final List data;
+  String favorite;
 
-  const CustomWidget_Card({
+  CustomWidget_Card({
     Key? key,
     required this.data,
     required this.title,
+    required this.favorite,
   }) : super(key: key);
 
   @override
+  State<CustomWidget_Card> createState() => _CustomWidget_CardState();
+}
+
+class _CustomWidget_CardState extends State<CustomWidget_Card> {
+  @override
   Widget build(BuildContext context) {
+    print(widget.favorite);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: FractionallySizedBox(
@@ -28,7 +38,7 @@ class CustomWidget_Card extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title.toUpperCase(),
+                    widget.title.toUpperCase(),
                     style: const TextStyle(
                       color: Color.fromARGB(255, 210, 61, 41),
                       fontFamily: 'AauxProBlack',
@@ -42,7 +52,7 @@ class CustomWidget_Card extends StatelessWidget {
                       1: FractionColumnWidth(.8),
                       2: FractionColumnWidth(.4)
                     },
-                    children: (data)
+                    children: (widget.data)
                         .map((entry) => TableRow(children: [
                               Padding(
                                 padding:
@@ -102,16 +112,23 @@ class CustomWidget_Card extends StatelessWidget {
               ),
             ),
             Positioned(
-              right: 25,
-              top: 15,
-              child: GestureDetector(
-                onTap: () {
-                  print('test');
-                },
-                child: const Icon(
+              right: 15,
+              top: 5,
+              child: IconButton(
+                icon: Icon(
                   Icons.star,
-                  color: Colors.grey,
+                  color: widget.favorite == widget.title
+                      ? Colors.amber
+                      : Colors.grey,
                 ),
+                onPressed: () {
+                  setState(
+                    () {
+                      LocalPersitance().storeData('reeks', widget.title);
+                      widget.favorite = widget.title;
+                    },
+                  );
+                },
               ),
             ),
           ],

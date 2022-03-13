@@ -1,6 +1,6 @@
 {
-    "name": "krachtbal_v2",
-    "short_name": "krachtbal_v2",
+    "name": "krachtbal",
+    "short_name": "krachtbal",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

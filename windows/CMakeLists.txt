@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
-project(krachtbal_v2 LANGUAGES CXX)
+project(krachtbal LANGUAGES CXX)
 
-set(BINARY_NAME "krachtbal_v2")
+set(BINARY_NAME "krachtbal")
 
 cmake_policy(SET CMP0063 NEW)
 
