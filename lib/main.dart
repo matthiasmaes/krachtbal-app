@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'widgets.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'localpersitance.dart';
 
 void main() {
   runApp(const MyApp());
@@ -48,25 +48,16 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class LocalPersitance {
-  Future<void> storeData(String key, String value) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString(key, value);
-  }
-
-  Future<String> readData(key) async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(key) ?? "No data found";
-  }
-
-  String getFavorite() {
-    String local = "";
-    LocalPersitance().readData('reeks').then((String result) => local = result);
-    return local;
-  }
-}
-
 class _MyHomePageState extends State<MyHomePage> {
+  List<String> pageTitle = ["Rangschikking", "Kalender"];
+  List<String> urls = [
+    'https://matthiasmaes.com/krachtbal/scraped_data/ranking/latest.json',
+    'https://matthiasmaes.com/krachtbal/scraped_data/calendar/latest.json'
+  ];
+  int index = 0;
+
+  List<String> englishPageTitles = ["Ranking", "Calendar"];
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -77,6 +68,14 @@ class _MyHomePageState extends State<MyHomePage> {
           return Scaffold(
             backgroundColor: const Color.fromARGB(255, 219, 219, 219),
             bottomNavigationBar: BottomNavigationBar(
+              currentIndex: index,
+              onTap: (int index) {
+                setState(() {
+                  this.index = index;
+                });
+                // _navigateToScreens(index);
+                print(index);
+              },
               items: const [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.home),
@@ -84,19 +83,19 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.calendar_today),
-                  label: 'Calender',
+                  label: 'Calendar',
                 ),
               ],
             ),
             body: CustomScrollView(
               slivers: [
-                const SliverAppBar(
+                SliverAppBar(
                   pinned: true,
                   expandedHeight: 200,
                   flexibleSpace: FlexibleSpaceBar(
                     titlePadding: EdgeInsets.only(bottom: 15, left: 15),
-                    title: Text('Rangschikking'),
-                    background: Image(
+                    title: Text(pageTitle[index]),
+                    background: const Image(
                       image: AssetImage('assets/images/Picture1.png'),
                       fit: BoxFit.cover,
                     ),
@@ -105,16 +104,29 @@ class _MyHomePageState extends State<MyHomePage> {
                 SliverPadding(
                   padding: const EdgeInsets.only(top: 25),
                   sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (BuildContext context, int index) {
-                        return CustomWidget_Card(
-                          data: parsedData[parsedData.keys.elementAt(index)],
-                          title: parsedData.keys.elementAt(index),
-                          favorite: LocalPersitance().getFavorite(),
-                        );
-                      },
-                      childCount: parsedData.keys.length,
-                    ),
+                    delegate: englishPageTitles[index] == 'Ranking'
+                        ? SliverChildBuilderDelegate(
+                            (BuildContext context, int index) {
+                              return CustomWidgetCardsRanking(
+                                data: parsedData[
+                                    parsedData.keys.elementAt(index)],
+                                title: parsedData.keys.elementAt(index),
+                                favorite: LocalPersitance().getFavorite(),
+                              );
+                            },
+                            childCount: parsedData.keys.length,
+                          )
+                        : SliverChildBuilderDelegate(
+                            (BuildContext context, int index) {
+                              return CustomWidgetCardsCalender(
+                                data: parsedData[
+                                    parsedData.keys.elementAt(index)],
+                                title: parsedData.keys.elementAt(index),
+                                favorite: LocalPersitance().getFavorite(),
+                              );
+                            },
+                            childCount: parsedData.keys.length,
+                          ),
                   ),
                 ),
               ],
@@ -141,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }),
       future: http.get(
         Uri.parse(
-          'https://matthiasmaes.com/krachtbal/scraped_data/latest.json',
+          urls[index],
         ),
       ),
     );
