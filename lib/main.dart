@@ -52,7 +52,8 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> pageTitle = ["Rangschikking", "Kalender"];
   List<String> urls = [
     'https://matthiasmaes.com/krachtbal/scraped_data/ranking/latest.json',
-    'https://matthiasmaes.com/krachtbal/scraped_data/calendar/latest.json'
+    // 'https://matthiasmaes.com/krachtbal/scraped_data/calendar/latest.json'
+    'https://matthiasmaes.com/krachtbal/scraped_data/calendar/16-03-2022-22-01-11-krachtbal-scraped.json'
   ];
   int index = 0;
 
