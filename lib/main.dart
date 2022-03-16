@@ -68,69 +68,64 @@ class _MyHomePageState extends State<MyHomePage> {
           return Scaffold(
             backgroundColor: const Color.fromARGB(255, 219, 219, 219),
             bottomNavigationBar: BottomNavigationBar(
-              currentIndex: index,
-              onTap: (int index) {
-                setState(() {
-                  this.index = index;
-                });
-                // _navigateToScreens(index);
-                print(index);
-              },
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  label: 'Home',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.calendar_today),
-                  label: 'Calendar',
-                ),
-              ],
-            ),
-            body: CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  pinned: true,
-                  expandedHeight: 200,
-                  flexibleSpace: FlexibleSpaceBar(
-                    titlePadding: EdgeInsets.only(bottom: 15, left: 15),
-                    title: Text(pageTitle[index]),
-                    background: const Image(
-                      image: AssetImage('assets/images/Picture1.png'),
-                      fit: BoxFit.cover,
-                    ),
+                currentIndex: index,
+                onTap: (int index) {
+                  setState(() {
+                    this.index = index;
+                  });
+                },
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.calendar_today),
+                    label: 'Calendar',
+                  ),
+                ]),
+            body: CustomScrollView(slivers: [
+              SliverAppBar(
+                pinned: true,
+                expandedHeight: 200,
+                flexibleSpace: FlexibleSpaceBar(
+                  titlePadding: EdgeInsets.only(bottom: 15, left: 15),
+                  title: Text(pageTitle[index]),
+                  background: const Image(
+                    image: AssetImage('assets/images/Picture1.png'),
+                    fit: BoxFit.cover,
                   ),
                 ),
-                SliverPadding(
-                  padding: const EdgeInsets.only(top: 25),
-                  sliver: SliverList(
-                    delegate: englishPageTitles[index] == 'Ranking'
-                        ? SliverChildBuilderDelegate(
-                            (BuildContext context, int index) {
-                              return CustomWidgetCardsRanking(
-                                data: parsedData[
-                                    parsedData.keys.elementAt(index)],
-                                title: parsedData.keys.elementAt(index),
-                                favorite: LocalPersitance().getFavorite(),
-                              );
-                            },
-                            childCount: parsedData.keys.length,
-                          )
-                        : SliverChildBuilderDelegate(
-                            (BuildContext context, int index) {
-                              return CustomWidgetCardsCalender(
-                                data: parsedData[
-                                    parsedData.keys.elementAt(index)],
-                                title: parsedData.keys.elementAt(index),
-                                favorite: LocalPersitance().getFavorite(),
-                              );
-                            },
-                            childCount: parsedData.keys.length,
-                          ),
-                  ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.only(top: 25),
+                sliver: SliverList(
+                  delegate: englishPageTitles[index] == 'Ranking'
+                      ? SliverChildBuilderDelegate(
+                          (BuildContext context, int index) {
+                            return CustomWidgetCardsRanking(
+                              data:
+                                  parsedData[parsedData.keys.elementAt(index)],
+                              title: parsedData.keys.elementAt(index),
+                              favorite: LocalPersitance().getFavorite(),
+                            );
+                          },
+                          childCount: parsedData.keys.length,
+                        )
+                      : SliverChildBuilderDelegate(
+                          (BuildContext context, int index) {
+                            return CustomWidgetCardsCalender(
+                              data:
+                                  parsedData[parsedData.keys.elementAt(index)],
+                              title: parsedData.keys.elementAt(index),
+                              favorite: LocalPersitance().getFavorite(),
+                            );
+                          },
+                          childCount: parsedData.keys.length,
+                        ),
                 ),
-              ],
-            ),
+              )
+            ]),
           );
         } else if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
