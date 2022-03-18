@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'widgets.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'localpersitance.dart';
+import 'widgets_calendar.dart';
+import 'widgets_ranking.dart';
 
 void main() {
   runApp(const MyApp());
