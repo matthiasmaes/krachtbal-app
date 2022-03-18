@@ -38,8 +38,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: colorCustom,
         fontFamily: 'Montserrat',
       ),
-      home: Expanded(
-        child: AnimatedSplashScreen.withScreenFunction(
+      home:
+        AnimatedSplashScreen.withScreenFunction(
           backgroundColor: const Color.fromARGB(255, 210, 61, 41),
           duration: 0,
           splash: 'assets/images/splash.png',
@@ -65,7 +65,7 @@ class MyApp extends StatelessWidget {
                 calendarData: json.decode(calendarResponse.body));
           },
         ),
-      ),
+      
       debugShowCheckedModeBanner: false,
     );
   }
