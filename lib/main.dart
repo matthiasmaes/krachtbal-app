@@ -38,7 +38,6 @@ class MyApp extends StatelessWidget {
         primarySwatch: colorCustom,
         fontFamily: 'Montserrat',
       ),
-      // home: const MyHomePage(),
       home: Expanded(
         child: AnimatedSplashScreen.withScreenFunction(
           backgroundColor: const Color.fromARGB(255, 210, 61, 41),
@@ -47,6 +46,7 @@ class MyApp extends StatelessWidget {
           splashIconSize: 300.0,
           splashTransition: SplashTransition.fadeTransition,
           pageTransitionType: PageTransitionType.fade,
+          // TOEDOE: run requests in parallel
           screenFunction: () async {
             http.Response rankingResponse = await http.get(
               Uri.parse(
@@ -117,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
             titlePadding: const EdgeInsets.only(bottom: 15, left: 15),
             title: Text(pageTitle[index]),
             background: const Image(
-              image: AssetImage('assets/images/Picture1.png'),
+              image: AssetImage('assets/images/header.png'),
               fit: BoxFit.cover,
             ),
           ),
