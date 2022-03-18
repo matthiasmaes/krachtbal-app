@@ -20,8 +20,6 @@ class CustomWidgetCardsCalender extends StatefulWidget {
 class CustomWidgetCardsCalenderState extends State<CustomWidgetCardsCalender> {
   @override
   Widget build(BuildContext context) {
-    print(widget.data);
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: FractionallySizedBox(
