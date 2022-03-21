@@ -148,7 +148,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 20),
+            padding: EdgeInsets.symmetric(vertical: 15),
             child: SizedBox(
               height: 40,
               child: ListView(
@@ -205,7 +205,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
               const SizedBox(
-                width: 15,
+                width: 7.5,
               ),
             ],
           ),
