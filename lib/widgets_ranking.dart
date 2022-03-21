@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'localpersitance.dart';
 
 class CustomWidgetCardsRanking extends StatefulWidget {
   final String title;

@@ -1,10 +1,9 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:krachtbal/widgets_detail.dart';
+import 'package:krachtbal/widgets_ranking.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'localpersitance.dart';
 import 'widgets_calendar.dart';
 import 'widgets_ranking.dart';
 import 'package:page_transition/page_transition.dart';
@@ -105,16 +104,16 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> pageTitle = ["Rangschikking", "Kalender", "Detail"];
   List<String> englishPageTitles = ["Ranking", "Calendar", "Detail"];
 
-  List<String> selectedDevisions = [
-    '1NHA',
-    '1NHB',
-  ];
+  List<String> selectedDevisions = [];
 
   bool isSelected = true;
   @override
   Widget build(BuildContext context) {
+    print(getPersistedData(widget.localStorage, 'filter'));
     selectedDevisions =
         getPersistedData(widget.localStorage, 'filter') ?? ['1NHA'];
+    print(selectedDevisions);
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 219, 219, 219),
       bottomNavigationBar: BottomNavigationBar(
@@ -132,10 +131,6 @@ class _MyHomePageState extends State<MyHomePage> {
             BottomNavigationBarItem(
               icon: Icon(Icons.calendar_today),
               label: 'Calendar',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.four_g_plus_mobiledata_sharp),
-              label: 'Detail',
             ),
           ]),
       body: CustomScrollView(slivers: [
@@ -159,37 +154,21 @@ class _MyHomePageState extends State<MyHomePage> {
               child: ListView(
                 shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
-                children: widget.rankingData.keys
-                    .map((entry) => Row(
-                          children: [
-                            const SizedBox(
-                              width: 15,
-                            ),
-                            InputChip(
-                              showCheckmark: true,
-                              selected: selectedDevisions.contains(entry),
-                              label: Text(entry),
-                              backgroundColor: Colors.white,
-                              selectedColor: Colors.white,
-                              checkmarkColor: Color.fromARGB(255, 210, 61, 41),
-                              onSelected: (bool value) {
-                                setState(() {
-                                  if (selectedDevisions.contains(entry)) {
-                                    selectedDevisions.remove(entry);
-                                  } else {
-                                    selectedDevisions.add(entry);
-                                  }
-
-                                  setPersistedData(widget.localStorage,
-                                      'filter', selectedDevisions);
-
-                                  isSelected = value;
-                                });
-                              },
-                            ),
-                          ],
-                        ))
-                    .toList(),
+                children: List.from([
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  InputChip(
+                      label: Icon(Icons.cancel),
+                      onSelected: (bool value) {
+                        setState(() {
+                          selectedDevisions.clear();
+                          setPersistedData(widget.localStorage, 'filter', []);
+                          print(selectedDevisions);
+                        });
+                      })
+                ])
+                  ..addAll(letsgo()),
               ),
             ),
           ),
@@ -197,6 +176,41 @@ class _MyHomePageState extends State<MyHomePage> {
         sliverBuilder(),
       ]),
     );
+  }
+
+  List<Widget> letsgo() {
+    return widget.calendarData.keys
+        .map(
+          (entry) => Row(
+            children: [
+              InputChip(
+                showCheckmark: true,
+                selected: selectedDevisions.contains(entry),
+                label: Text(entry),
+                backgroundColor: Colors.white,
+                selectedColor: Colors.white,
+                checkmarkColor: Color.fromARGB(255, 210, 61, 41),
+                onSelected: (bool value) {
+                  setState(() {
+                    if (selectedDevisions.contains(entry)) {
+                      selectedDevisions.remove(entry);
+                    } else {
+                      selectedDevisions.add(entry);
+                    }
+                    setPersistedData(
+                        widget.localStorage, 'filter', selectedDevisions);
+
+                    isSelected = value;
+                  });
+                },
+              ),
+              const SizedBox(
+                width: 15,
+              ),
+            ],
+          ),
+        )
+        .toList();
   }
 
   SliverPadding sliverBuilder() {
@@ -229,23 +243,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         );
-      } else if (englishPageTitles[index] == 'Calendar') {
-        return SliverPadding(
-          // padding: const EdgeInsets.only(top: 25),
-          padding: EdgeInsets.zero,
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                return CustomWidgetCardsCalender(
-                  data: widget
-                      .calendarData[widget.calendarData.keys.elementAt(index)],
-                  title: widget.calendarData.keys.elementAt(index),
-                );
-              },
-              childCount: widget.calendarData.keys.length,
-            ),
-          ),
-        );
       } else {
         return SliverPadding(
           // padding: const EdgeInsets.only(top: 25),
@@ -253,10 +250,14 @@ class _MyHomePageState extends State<MyHomePage> {
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
-                return CustomWidgetCardsDetail(
-                  data: widget.calendarData[selectedDevisions.elementAt(index)],
-                  title: selectedDevisions.elementAt(index),
-                );
+                if (widget.calendarData
+                    .containsKey(selectedDevisions.elementAt(index))) {
+                  return CustomWidgetCardsCalender(
+                    data:
+                        widget.calendarData[selectedDevisions.elementAt(index)],
+                    title: selectedDevisions.elementAt(index),
+                  );
+                }
               },
               childCount: selectedDevisions.length,
             ),
