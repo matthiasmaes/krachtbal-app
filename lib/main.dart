@@ -1,6 +1,8 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:krachtbal/widgets_detail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'localpersitance.dart';
 import 'widgets_calendar.dart';
@@ -38,34 +40,36 @@ class MyApp extends StatelessWidget {
         primarySwatch: colorCustom,
         fontFamily: 'Montserrat',
       ),
-      home:
-        AnimatedSplashScreen.withScreenFunction(
-          backgroundColor: const Color.fromARGB(255, 210, 61, 41),
-          duration: 0,
-          splash: 'assets/images/splash.png',
-          splashIconSize: 300.0,
-          splashTransition: SplashTransition.fadeTransition,
-          pageTransitionType: PageTransitionType.fade,
-          // TOEDOE: run requests in parallel
-          screenFunction: () async {
-            http.Response rankingResponse = await http.get(
+      home: AnimatedSplashScreen.withScreenFunction(
+        backgroundColor: const Color.fromARGB(255, 210, 61, 41),
+        duration: 0,
+        splash: 'assets/images/splash.png',
+        splashIconSize: 300.0,
+        splashTransition: SplashTransition.fadeTransition,
+        pageTransitionType: PageTransitionType.fade,
+        // TOEDOE: run requests in parallel
+        screenFunction: () async {
+          var httpResponses = await Future.wait([
+            http.get(
               Uri.parse(
                 'https://matthiasmaes.com/krachtbal/scraped_data/ranking/latest.json',
               ),
-            );
-
-            http.Response calendarResponse = await http.get(
+            ),
+            http.get(
               Uri.parse(
-                'https://matthiasmaes.com/krachtbal/scraped_data/calendar/latest.json',
+                'https://matthiasmaes.com/krachtbal/scraped_data/calendar/21-03-2022-20-35-42-krachtbal-scraped.json',
               ),
-            );
+            ),
+          ]);
 
-            return MyHomePage(
-                rankingData: json.decode(rankingResponse.body),
-                calendarData: json.decode(calendarResponse.body));
-          },
-        ),
-      
+          var localStorage = await SharedPreferences.getInstance();
+
+          return MyHomePage(
+              rankingData: json.decode(httpResponses[0].body),
+              calendarData: json.decode(httpResponses[1].body),
+              localStorage: localStorage);
+        },
+      ),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -73,23 +77,44 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage(
-      {Key? key, required this.rankingData, required this.calendarData})
+      {Key? key,
+      required this.rankingData,
+      required this.calendarData,
+      required this.localStorage})
       : super(key: key);
 
   final Map<String, dynamic> rankingData;
   final Map<String, dynamic> calendarData;
+  final SharedPreferences localStorage;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+List<String>? getPersistedData(SharedPreferences interface, String key) {
+  return interface.getStringList(key);
+}
+
+void setPersistedData(
+    SharedPreferences interface, String key, List<String> value) {
+  interface.setStringList(key, value);
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   int index = 0;
-  List<String> pageTitle = ["Rangschikking", "Kalender"];
-  List<String> englishPageTitles = ["Ranking", "Calendar"];
+  List<String> pageTitle = ["Rangschikking", "Kalender", "Detail"];
+  List<String> englishPageTitles = ["Ranking", "Calendar", "Detail"];
 
+  List<String> selectedDevisions = [
+    '1NHA',
+    '1NHB',
+  ];
+
+  bool isSelected = true;
   @override
   Widget build(BuildContext context) {
+    selectedDevisions =
+        getPersistedData(widget.localStorage, 'filter') ?? ['1NHA'];
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 219, 219, 219),
       bottomNavigationBar: BottomNavigationBar(
@@ -108,6 +133,10 @@ class _MyHomePageState extends State<MyHomePage> {
               icon: Icon(Icons.calendar_today),
               label: 'Calendar',
             ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.four_g_plus_mobiledata_sharp),
+              label: 'Detail',
+            ),
           ]),
       body: CustomScrollView(slivers: [
         SliverAppBar(
@@ -122,35 +151,118 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
-        SliverPadding(
-          padding: const EdgeInsets.only(top: 25),
-          sliver: SliverList(
-            delegate: englishPageTitles[index] == 'Ranking'
-                ? SliverChildBuilderDelegate(
-                    (BuildContext context, int index) {
-                      return CustomWidgetCardsRanking(
-                        data: widget.rankingData[
-                            widget.rankingData.keys.elementAt(index)],
-                        title: widget.rankingData.keys.elementAt(index),
-                        favorite: LocalPersitance().getFavorite(),
-                      );
-                    },
-                    childCount: widget.rankingData.keys.length,
-                  )
-                : SliverChildBuilderDelegate(
-                    (BuildContext context, int index) {
-                      return CustomWidgetCardsCalender(
-                        data: widget.calendarData[
-                            widget.calendarData.keys.elementAt(index)],
-                        title: widget.calendarData.keys.elementAt(index),
-                        favorite: LocalPersitance().getFavorite(),
-                      );
-                    },
-                    childCount: widget.calendarData.keys.length,
-                  ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: SizedBox(
+              height: 40,
+              child: ListView(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                children: widget.rankingData.keys
+                    .map((entry) => Row(
+                          children: [
+                            const SizedBox(
+                              width: 15,
+                            ),
+                            InputChip(
+                              showCheckmark: true,
+                              selected: selectedDevisions.contains(entry),
+                              label: Text(entry),
+                              backgroundColor: Colors.white,
+                              selectedColor: Colors.white,
+                              checkmarkColor: Color.fromARGB(255, 210, 61, 41),
+                              onSelected: (bool value) {
+                                setState(() {
+                                  if (selectedDevisions.contains(entry)) {
+                                    selectedDevisions.remove(entry);
+                                  } else {
+                                    selectedDevisions.add(entry);
+                                  }
+
+                                  setPersistedData(widget.localStorage,
+                                      'filter', selectedDevisions);
+
+                                  isSelected = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ))
+                    .toList(),
+              ),
+            ),
           ),
-        )
+        ),
+        sliverBuilder(),
       ]),
     );
+  }
+
+  SliverPadding sliverBuilder() {
+    if (selectedDevisions.isEmpty) {
+      return const SliverPadding(
+        padding: EdgeInsets.only(top: 50),
+        sliver: SliverToBoxAdapter(
+          child: Center(
+            child: Text(
+              'Kies een reeks hierboven om verder te gaan',
+              style: TextStyle(fontSize: 15, color: Colors.grey),
+            ),
+          ),
+        ),
+      );
+    } else {
+      if (englishPageTitles[index] == 'Ranking') {
+        return SliverPadding(
+          // padding: const EdgeInsets.only(top: 25),
+          padding: EdgeInsets.zero,
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                return CustomWidgetCardsRanking(
+                  data: widget.rankingData[selectedDevisions.elementAt(index)],
+                  title: selectedDevisions.elementAt(index),
+                );
+              },
+              childCount: selectedDevisions.length,
+            ),
+          ),
+        );
+      } else if (englishPageTitles[index] == 'Calendar') {
+        return SliverPadding(
+          // padding: const EdgeInsets.only(top: 25),
+          padding: EdgeInsets.zero,
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                return CustomWidgetCardsCalender(
+                  data: widget
+                      .calendarData[widget.calendarData.keys.elementAt(index)],
+                  title: widget.calendarData.keys.elementAt(index),
+                );
+              },
+              childCount: widget.calendarData.keys.length,
+            ),
+          ),
+        );
+      } else {
+        return SliverPadding(
+          // padding: const EdgeInsets.only(top: 25),
+          padding: EdgeInsets.zero,
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                return CustomWidgetCardsDetail(
+                  data: widget.calendarData[selectedDevisions.elementAt(index)],
+                  title: selectedDevisions.elementAt(index),
+                );
+              },
+              childCount: selectedDevisions.length,
+            ),
+          ),
+        );
+      }
+    }
   }
 }

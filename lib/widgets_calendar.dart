@@ -3,13 +3,11 @@ import 'package:flutter/material.dart';
 class CustomWidgetCardsCalender extends StatefulWidget {
   final String title;
   final List data;
-  String favorite;
 
   CustomWidgetCardsCalender({
     Key? key,
     required this.data,
     required this.title,
-    required this.favorite,
   }) : super(key: key);
 
   @override
