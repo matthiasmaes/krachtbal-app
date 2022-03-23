@@ -125,7 +125,6 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: index,
           onTap: (int index) {
-            print(englishPageTitles[index]);
             setState(() {
               this.index = index;
             });
