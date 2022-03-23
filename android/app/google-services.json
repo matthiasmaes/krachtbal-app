@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "37290786317",
+    "project_id": "krachtbal-klaverken",
+    "storage_bucket": "krachtbal-klaverken.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:37290786317:android:d763072716ee59a54c5f44",
+        "android_client_info": {
+          "package_name": "com.matthiasmaes.krachtbal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "37290786317-uu15v3adruogtjtaqpb82qb0umc9ruul.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDD5Rq--ruKnU-hfIQiaoNgtCHk-0ggZ6s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "37290786317-uu15v3adruogtjtaqpb82qb0umc9ruul.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

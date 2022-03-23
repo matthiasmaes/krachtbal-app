@@ -7,8 +7,9 @@ from firebase_admin import firestore
 
 class BackendKrachtbal:
 
-	def __init__(self):
+	def __init__(self, uploadResults):
 		self.firebase = self.initFirebase()
+		self.uploadResults = uploadResults
 		self.filename = datetime.now().strftime("%d-%m-%Y-%H-%M-%S") + '-krachtbal-scraped.json'
 		self.filename_short = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
 		self.url_ranking = 'http://krachtbal.be/rangschikking.asp'
@@ -46,7 +47,7 @@ class BackendKrachtbal:
 			table_data[self.devisions[table_index]] = table_results
 			table_index += 1
 		
-		if storeInFirebase : self.storeFirebase(processor, table_data)
+		self.storeFirebase(processor, table_data)
 		return table_data
 
 	def createSynchrCalendar(self, calendarTable):
@@ -67,18 +68,24 @@ class BackendKrachtbal:
 		return firestore.client()
 
 	def storeFirebase(self, collection, value):
-		timestamped_doc = self.firebase.collection(collection).document(self.filename_short)
-		timestamped_doc.set({'data': value})
+		if(self.uploadResults):
+			timestamped_doc = self.firebase.collection(collection).document(self.filename_short)
+			timestamped_doc.set({'data': value})
 
-		latest_doc = self.firebase.collection(collection).document('latest')
-		latest_doc.set({'data': value})
+			latest_doc = self.firebase.collection(collection).document('latest')
+			latest_doc.set({'data': value})
+		else: 
+			print('[DEBUG MODE] Not pushing to firebase')
+			print(value)
+		
 
 
 
 if __name__ == "__main__":
-	worker = BackendKrachtbal()
+	worker = BackendKrachtbal(uploadResults = False)
 	worker.devisions = worker.getDevisons(worker.getTables(worker.url_ranking))
-	ranking = worker.tableToJson(worker.getTables(worker.url_ranking), 'ranking', True)
-	calendar = worker.tableToJson(worker.getTables(worker.url_calendar), 'calendar', True)
+	print(worker.devisions)
+	ranking = worker.tableToJson(worker.getTables(worker.url_ranking), 'ranking')
+	calendar = worker.tableToJson(worker.getTables(worker.url_calendar), 'calendar')
 	synchCalendar = worker.createSynchrCalendar(calendar)
 	worker.storeFirebase('synchCalendar', synchCalendar)

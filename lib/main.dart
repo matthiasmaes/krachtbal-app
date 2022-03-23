@@ -1,4 +1,5 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:krachtbal/widgets_ranking.dart';
@@ -7,8 +8,15 @@ import 'dart:convert';
 import 'widgets_calendar.dart';
 import 'widgets_ranking.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -48,24 +56,21 @@ class MyApp extends StatelessWidget {
         pageTransitionType: PageTransitionType.fade,
         // TOEDOE: run requests in parallel
         screenFunction: () async {
-          var httpResponses = await Future.wait([
-            http.get(
-              Uri.parse(
-                'https://matthiasmaes.com/krachtbal/scraped_data/ranking/latest.json',
-              ),
-            ),
-            http.get(
-              Uri.parse(
-                'https://matthiasmaes.com/krachtbal/scraped_data/calendar/21-03-2022-20-35-42-krachtbal-scraped.json',
-              ),
-            ),
-          ]);
-
           var localStorage = await SharedPreferences.getInstance();
 
+          CollectionReference collectionRanking =
+              FirebaseFirestore.instance.collection('ranking');
+          var rankingData = (await collectionRanking.doc('latest').get()).data()
+              as Map<String, dynamic>;
+
+          CollectionReference collectionCalendar =
+              FirebaseFirestore.instance.collection('calendar');
+          var calendarData = (await collectionCalendar.doc('latest').get())
+              .data() as Map<String, dynamic>;
+
           return MyHomePage(
-              rankingData: json.decode(httpResponses[0].body),
-              calendarData: json.decode(httpResponses[1].body),
+              rankingData: rankingData['data'],
+              calendarData: calendarData['data'],
               localStorage: localStorage);
         },
       ),
@@ -109,10 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isSelected = true;
   @override
   Widget build(BuildContext context) {
-    print(getPersistedData(widget.localStorage, 'filter'));
-    selectedDevisions =
-        getPersistedData(widget.localStorage, 'filter') ?? ['1NHA'];
-    print(selectedDevisions);
+    print(widget.rankingData);
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 219, 219, 219),
@@ -148,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 15),
+            padding: const EdgeInsets.symmetric(vertical: 15),
             child: SizedBox(
               height: 40,
               child: ListView(
@@ -159,16 +161,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     width: 5,
                   ),
                   InputChip(
-                      label: Icon(Icons.cancel),
+                      label: const Icon(Icons.cancel),
                       onSelected: (bool value) {
                         setState(() {
                           selectedDevisions.clear();
                           setPersistedData(widget.localStorage, 'filter', []);
-                          print(selectedDevisions);
                         });
                       })
                 ])
-                  ..addAll(letsgo()),
+                  ..addAll(buildChips()),
               ),
             ),
           ),
@@ -178,8 +179,37 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  List<Widget> letsgo() {
-    return widget.calendarData.keys
+  List<Widget> buildChips() {
+    return [
+      '1NHA',
+      '1NHB',
+      '1NDA',
+      '1NDB',
+      '2NHA',
+      '2NHB',
+      '1LH',
+      '1LD',
+      '2LH',
+      'REG D/2LD A',
+      'REG D/2LD B',
+      'REG HA',
+      'REG HB',
+      'RRL',
+      'U18J',
+      'U18M',
+      'U16JA',
+      'U16JB',
+      'U16M',
+      'U14JA',
+      'U14JB',
+      'U14M',
+      'U12A',
+      'U12B',
+      'U12 Titel',
+      'U12NA',
+      'U12NB',
+      'U12NC'
+    ]
         .map(
           (entry) => Row(
             children: [
@@ -189,7 +219,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 label: Text(entry),
                 backgroundColor: Colors.white,
                 selectedColor: Colors.white,
-                checkmarkColor: Color.fromARGB(255, 210, 61, 41),
+                checkmarkColor: const Color.fromARGB(255, 210, 61, 41),
                 onSelected: (bool value) {
                   setState(() {
                     if (selectedDevisions.contains(entry)) {
