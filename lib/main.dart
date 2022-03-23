@@ -8,6 +8,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'widgets_calendar.dart';
 import 'widgets_ranking.dart';
+import 'widgets_score.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +52,6 @@ class MyApp extends StatelessWidget {
         splashIconSize: 300.0,
         splashTransition: SplashTransition.fadeTransition,
         pageTransitionType: PageTransitionType.fade,
-        // TOEDOE: run requests in parallel
         screenFunction: () async {
           var localStorage = await SharedPreferences.getInstance();
 
@@ -65,9 +65,16 @@ class MyApp extends StatelessWidget {
           var calendarData = (await collectionCalendar.doc('latest').get())
               .data() as Map<String, dynamic>;
 
+          CollectionReference collectionSynchCalendar =
+              FirebaseFirestore.instance.collection('synchCalendar');
+          var synchCalendarData =
+              (await collectionSynchCalendar.doc('latest').get()).data()
+                  as Map<String, dynamic>;
+
           return MyHomePage(
               rankingData: rankingData['data'],
               calendarData: calendarData['data'],
+              synchCalendarData: synchCalendarData['data'],
               localStorage: localStorage);
         },
       ),
@@ -77,16 +84,18 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
+  final Map<String, dynamic> rankingData;
+  final Map<String, dynamic> calendarData;
+  final List synchCalendarData;
+  final SharedPreferences localStorage;
+
   const MyHomePage(
       {Key? key,
       required this.rankingData,
       required this.calendarData,
+      required this.synchCalendarData,
       required this.localStorage})
       : super(key: key);
-
-  final Map<String, dynamic> rankingData;
-  final Map<String, dynamic> calendarData;
-  final SharedPreferences localStorage;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -103,21 +112,20 @@ void setPersistedData(
 
 class _MyHomePageState extends State<MyHomePage> {
   int index = 0;
-  List<String> pageTitle = ["Rangschikking", "Kalender", "Detail"];
-  List<String> englishPageTitles = ["Ranking", "Calendar", "Detail"];
+  List<String> pageTitle = ["Rangschikking", "Kalender", "Score"];
+  List<String> englishPageTitles = ["Ranking", "Calendar", "Score"];
 
   List<String> selectedDevisions = [];
 
   bool isSelected = true;
   @override
   Widget build(BuildContext context) {
-    print(widget.rankingData);
-
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 219, 219, 219),
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: index,
           onTap: (int index) {
+            print(englishPageTitles[index]);
             setState(() {
               this.index = index;
             });
@@ -245,7 +253,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   SliverPadding sliverBuilder() {
-    if (selectedDevisions.isEmpty) {
+    if (selectedDevisions.isEmpty && englishPageTitles[index] != 'Score') {
       return const SliverPadding(
         padding: EdgeInsets.only(top: 50),
         sliver: SliverToBoxAdapter(
@@ -260,7 +268,6 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       if (englishPageTitles[index] == 'Ranking') {
         return SliverPadding(
-          // padding: const EdgeInsets.only(top: 25),
           padding: EdgeInsets.zero,
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
@@ -274,9 +281,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         );
-      } else {
+      } else if (englishPageTitles[index] == 'Calendar') {
         return SliverPadding(
-          // padding: const EdgeInsets.only(top: 25),
           padding: EdgeInsets.zero,
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
@@ -292,6 +298,14 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               childCount: selectedDevisions.length,
             ),
+          ),
+        );
+      } else {
+        // MAKE THIS INTO SCORE
+        return SliverPadding(
+          padding: EdgeInsets.zero,
+          sliver: CustomWidgetCardsScore(
+            data: widget.synchCalendarData,
           ),
         );
       }

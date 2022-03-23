@@ -22,7 +22,7 @@ class CustomWidgetCardsCalenderState extends State<CustomWidgetCardsCalender> {
       padding: const EdgeInsets.only(bottom: 20),
       child: FractionallySizedBox(
         widthFactor: 0.9,
-        child: Stack(alignment: AlignmentDirectional.topEnd, children: [
+        child: Column(children: [
           Container(
             constraints: const BoxConstraints(
               maxHeight: double.infinity,

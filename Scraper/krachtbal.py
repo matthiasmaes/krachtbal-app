@@ -25,7 +25,7 @@ class BackendKrachtbal:
 	def getDevisons (self, table):
 		return [devison.get_text()[devison.get_text().find("(")+1:devison.get_text().find(")")] for devison in BeautifulSoup(str(table), 'html.parser').find_all('td', {'class': 'td_reeks'})]
 
-	def tableToJson(self, table_list, processor, storeInFirebase):
+	def tableToJson(self, table_list, processor):
 		table_data = {}
 		table_index = 0
 
@@ -37,9 +37,8 @@ class BackendKrachtbal:
 				table_columns = table_row.find_all('td')
 				try:
 					if(processor == 'calendar'):
-						table_results.append({'date': table_columns[0].get_text(), 'time': table_columns[1].get_text(), 'home': table_columns[2].get_text(), 'away': table_columns[3].get_text()})
+						table_results.append({'date': table_columns[0].get_text(), 'time': table_columns[1].get_text(), 'home': table_columns[2].get_text(), 'away': table_columns[3].get_text(), 'score_home': table_columns[4].get_text(), 'score_away': table_columns[6].get_text()})
 					elif(processor == 'ranking'):
-						
 						table_results.append({'place': table_columns[0].get_text(), 'club': table_columns[1].get_text(), 'points': table_columns[-1].get_text()})
 				except IndexError as error:
 					pass
@@ -82,9 +81,8 @@ class BackendKrachtbal:
 
 
 if __name__ == "__main__":
-	worker = BackendKrachtbal(uploadResults = False)
+	worker = BackendKrachtbal(uploadResults = True)
 	worker.devisions = worker.getDevisons(worker.getTables(worker.url_ranking))
-	print(worker.devisions)
 	ranking = worker.tableToJson(worker.getTables(worker.url_ranking), 'ranking')
 	calendar = worker.tableToJson(worker.getTables(worker.url_calendar), 'calendar')
 	synchCalendar = worker.createSynchrCalendar(calendar)
