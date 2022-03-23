@@ -1,16 +1,13 @@
+import 'firebase_options.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:krachtbal/widgets_ranking.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 import 'widgets_calendar.dart';
 import 'widgets_ranking.dart';
-import 'package:page_transition/page_transition.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -127,12 +124,16 @@ class _MyHomePageState extends State<MyHomePage> {
           },
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
+              icon: Icon(Icons.leaderboard),
+              label: 'Ranking',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.calendar_today),
               label: 'Calendar',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.scoreboard_outlined),
+              label: 'Score',
             ),
           ]),
       body: CustomScrollView(slivers: [
