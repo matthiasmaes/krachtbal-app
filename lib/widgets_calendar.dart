@@ -43,7 +43,7 @@ class CustomWidgetCardsCalenderState extends State<CustomWidgetCardsCalender> {
                   width: double.infinity,
                   child: widget.data.isEmpty
                       ? const Text(
-                          'Volgend weekend geen match ingepland',
+                          'Geen matchen meer ingepland',
                           style: TextStyle(color: Colors.grey),
                         )
                       : null),

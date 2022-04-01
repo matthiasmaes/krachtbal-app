@@ -9,6 +9,7 @@ class BackendKrachtbal:
 
 	def __init__(self, uploadResults):
 		self.firebase = self.initFirebase()
+		self.now = datetime.now()
 		self.uploadResults = uploadResults
 		self.filename = datetime.now().strftime("%d-%m-%Y-%H-%M-%S") + '-krachtbal-scraped.json'
 		self.filename_short = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
@@ -37,6 +38,7 @@ class BackendKrachtbal:
 				table_columns = table_row.find_all('td')
 				try:
 					if(processor == 'calendar'):
+						if datetime.strptime(table_columns[0].get_text() + '-' + table_columns[1].get_text(), '%d/%m/%Y-%H:%M') < self.now: continue
 						table_results.append({'date': table_columns[0].get_text(), 'time': table_columns[1].get_text(), 'home': table_columns[2].get_text(), 'away': table_columns[3].get_text(), 'score_home': table_columns[4].get_text(), 'score_away': table_columns[6].get_text().strip()})
 					elif(processor == 'ranking'):
 						table_results.append({'place': table_columns[0].get_text(), 'club': table_columns[1].get_text(), 'points': table_columns[-1].get_text()})
@@ -55,12 +57,9 @@ class BackendKrachtbal:
 			for entry in calendarTable[devision]:
 				newEntry = entry
 				newEntry['devision'] = devision
-				newEntry['datetime'] = datetime.strptime(entry['date'] + '-' +  entry['time'], '%d/%m/%Y-%H:%M')
-
-				if newEntry['datetime'] > datetime.now():
-					continue
-				else:
-					unsortedList.append(newEntry)
+				newEntry['datetime'] = datetime.strptime(entry['date'] + '-' + entry['time'], '%d/%m/%Y-%H:%M')
+				if newEntry['datetime'] > self.now: continue
+				unsortedList.append(newEntry)
 
 		return sorted(unsortedList, reverse=True, key=lambda d: d['datetime']) 
 
