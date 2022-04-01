@@ -252,14 +252,22 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   SliverPadding sliverBuilder() {
-    if (selectedDevisions.isEmpty && englishPageTitles[index] != 'Score') {
-      return const SliverPadding(
-        padding: EdgeInsets.only(top: 50),
+    if (selectedDevisions.isEmpty) {
+      return SliverPadding(
+        padding: const EdgeInsets.only(top: 50),
         sliver: SliverToBoxAdapter(
           child: Center(
-            child: Text(
-              'Kies een reeks hierboven om verder te gaan',
-              style: TextStyle(fontSize: 15, color: Colors.grey),
+            child: Column(
+              children: const [
+                Icon(
+                  Icons.keyboard_arrow_up_outlined,
+                  color: Colors.grey,
+                ),
+                Text(
+                  'Kies een reeks hierboven om verder te gaan',
+                  style: TextStyle(fontSize: 15, color: Colors.grey),
+                ),
+              ],
             ),
           ),
         ),

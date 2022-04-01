@@ -47,11 +47,18 @@ class CustomWidgetCardsScoreState extends State<CustomWidgetCardsScore> {
                     TableCell(
                       verticalAlignment: TableCellVerticalAlignment.middle,
                       child: Padding(
-                          padding: const EdgeInsets.only(right: 0),
-                          child: Text(
-                            widget.data[index]['home'],
-                            textAlign: TextAlign.end,
-                          )),
+                        padding: const EdgeInsets.only(right: 0),
+                        child: Text(
+                          widget.data[index]['home'],
+                          textAlign: TextAlign.end,
+                          style: TextStyle(
+                            color: widget.data[index]['home']
+                                    .contains('Buggenhout')
+                                ? const Color.fromARGB(255, 210, 61, 41)
+                                : null,
+                          ),
+                        ),
+                      ),
                     ),
                     TableCell(
                       verticalAlignment: TableCellVerticalAlignment.middle,
@@ -68,7 +75,15 @@ class CustomWidgetCardsScoreState extends State<CustomWidgetCardsScore> {
                         verticalAlignment: TableCellVerticalAlignment.middle,
                         child: Padding(
                             padding: const EdgeInsets.only(left: 0),
-                            child: Text(widget.data[index]['away']))),
+                            child: Text(
+                              widget.data[index]['away'],
+                              style: TextStyle(
+                                color: widget.data[index]['away']
+                                        .contains('Buggenhout')
+                                    ? const Color.fromARGB(255, 210, 61, 41)
+                                    : null,
+                              ),
+                            ))),
                   ]),
                   TableRow(children: [
                     const TableCell(child: Text('')),
