@@ -21,14 +21,10 @@ jobs:
     - name: Get packages
       run: flutter pub get
 
-    - name: Test
-      run: flutter test --coverage
-
-    - name: Build - APK
-      run: flutter build apk
-
-    - name: Archive production artifacts
-      uses: actions/upload-artifact@v1
+    
+    - name: Collect the code coverage
+      uses: codecov/codecov-action@v1.0.3
       with:
-        name: apk
-        path: build/app/outputs/apk/release/app-release.apk
+        token: ${{secrets.CODECOV}} #required
+        file: ./coverage/lcov.info
+  
