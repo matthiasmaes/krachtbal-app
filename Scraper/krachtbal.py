@@ -18,13 +18,16 @@ class BackendKrachtbal:
 		self.url_base_remote = 'krachtbal/scraped_data/'
 		self.devisions = []
 
+
 	def getTables(self, url):
 		request_text = requests.get(url).text
 		request_soup = BeautifulSoup(request_text, 'html.parser')
 		return request_soup.find_all('table')
 
+
 	def getDevisons (self, table):
 		return [devison.get_text()[devison.get_text().find("(")+1:devison.get_text().find(")")] for devison in BeautifulSoup(str(table), 'html.parser').find_all('td', {'class': 'td_reeks'})]
+
 
 	def tableToJson(self, table_list, processor):
 		table_data = {}
@@ -51,6 +54,7 @@ class BackendKrachtbal:
 		self.storeFirebase(processor, table_data)
 		return table_data
 
+
 	def createSynchrCalendar(self, calendarTable):
 		unsortedList = []
 		for devision in calendarTable.keys():
@@ -69,6 +73,7 @@ class BackendKrachtbal:
 		firebase_admin.initialize_app(cred)
 		return firestore.client()
 
+
 	def storeFirebase(self, collection, value):
 		if(self.uploadResults):
 			timestamped_doc = self.firebase.collection(collection).document(self.filename_short)
@@ -79,8 +84,6 @@ class BackendKrachtbal:
 		else: 
 			print('[DEBUG MODE] Not pushing to firebase')
 			print(value)
-		
-
 
 
 if __name__ == "__main__":
