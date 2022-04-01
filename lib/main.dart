@@ -304,7 +304,9 @@ class _MyHomePageState extends State<MyHomePage> {
         return SliverPadding(
           padding: EdgeInsets.zero,
           sliver: CustomWidgetCardsScore(
-            data: widget.synchCalendarData,
+            data: widget.synchCalendarData
+                .where((x) => selectedDevisions.contains(x['devision']))
+                .toList(),
           ),
         );
       }
