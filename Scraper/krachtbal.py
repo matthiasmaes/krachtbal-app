@@ -5,6 +5,9 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 from os import environ
+import os
+from pytz import timezone
+import pytz
 
 
 class BackendKrachtbal:
@@ -13,7 +16,7 @@ class BackendKrachtbal:
 		self.firebase = self.initFirebase()
 		self.now = datetime.now()
 		self.uploadResults = uploadResults
-		self.filename = datetime.now().strftime("%d-%m-%Y-%H-%M-%S") + '-krachtbal-scraped.json'
+		self.filename = datetime.now(tz=pytz.timezone('Europe/Brussels')).strftime("%d-%m-%Y-%H-%M-%S") + '-krachtbal-scraped.json'
 		self.filename_short = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
 		self.url_ranking = 'http://krachtbal.be/rangschikking.asp'
 		self.url_calendar = 'http://krachtbal.be/kalender.asp?club=11_0&reeks=0&datum=0'
@@ -76,14 +79,7 @@ class BackendKrachtbal:
 
 
 	def initFirebase(self):
-		if environ.get('FIREBASE') is None:
-			cred = credentials.Certificate("C:/Users/matth/Desktop/KRACHTBAL/krachtbal-klaverken-firebase-adminsdk-htytx-4f3a847736.json")
-		else:
-			cred = credentials.Certificate(json.loads(environ.get('FIREBASE')))
-
-
-
-		
+		cred = credentials.Certificate(os.getenv('FIREBASE', "C:/Users/matth/Desktop/KRACHTBAL/krachtbal-klaverken-firebase-adminsdk-htytx-4f3a847736.json"))
 		firebase_admin.initialize_app(cred)
 		return firestore.client()
 
@@ -110,3 +106,5 @@ if __name__ == "__main__":
 
 	synchCalendar = worker.createSynchrCalendar(calendar)
 	worker.storeFirebase('synchCalendar', synchCalendar)
+
+	print('Very good Sir, updates were pushed:', worker.filename)
