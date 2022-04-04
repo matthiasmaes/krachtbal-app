@@ -290,6 +290,9 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       } else {
+        print(widget.synchCalendarData
+            .where((x) => selectedDevisions.contains(x['devision']))
+            .toList());
         return SliverPadding(
           padding: EdgeInsets.zero,
           sliver: CustomWidgetCardsScore(
