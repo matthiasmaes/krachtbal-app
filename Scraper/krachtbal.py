@@ -15,7 +15,7 @@ class BackendKrachtbal:
 		self.now = datetime.now()
 		self.uploadResults = uploadResults
 		self.filename = datetime.now(tz=pytz.timezone('Europe/Brussels')).strftime("%d-%m-%Y-%H-%M-%S") + '-krachtbal-scraped.json'
-		self.filename_short = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+		self.filename_short = datetime.now(tz=pytz.timezone('Europe/Brussels')).strftime("%d-%m-%Y-%H-%M-%S")
 		self.url_ranking = 'http://krachtbal.be/rangschikking.asp'
 		self.url_calendar = 'http://krachtbal.be/kalender.asp?club=11_0&reeks=0&datum=0'
 		self.url_base_remote = 'krachtbal/scraped_data/'
