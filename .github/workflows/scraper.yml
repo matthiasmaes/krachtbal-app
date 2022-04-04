@@ -1,4 +1,4 @@
-name: scraper-krachtbal
+name: Scraper Krachtbal Website
 
 on:
   schedule:
