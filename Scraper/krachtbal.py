@@ -5,10 +5,7 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 from os import environ
-import os
 from pytz import timezone
-import pytz
-
 
 class BackendKrachtbal:
 
@@ -79,7 +76,11 @@ class BackendKrachtbal:
 
 
 	def initFirebase(self):
-		cred = credentials.Certificate(os.getenv('FIREBASE', "C:/Users/matth/Desktop/KRACHTBAL/krachtbal-klaverken-firebase-adminsdk-htytx-4f3a847736.json"))
+		if environ.get('FIREBASE') is None:
+			cred = credentials.Certificate("C:/Users/matth/Desktop/KRACHTBAL/krachtbal-klaverken-firebase-adminsdk-htytx-4f3a847736.json")
+		else:
+			cred = credentials.Certificate(json.loads(environ.get('FIREBASE')))
+
 		firebase_admin.initialize_app(cred)
 		return firestore.client()
 
