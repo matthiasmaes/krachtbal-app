@@ -1,4 +1,4 @@
-name: scraper-krachtbal
+name: Scraper Krachtbal Website
 
 on:
   schedule:
@@ -23,3 +23,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r Scraper/requirements.txt
+          
+      - name: execute py script # run sj-gobierno.py to get the latest data
+        env: 
+          FIREBASE: ${{ secrets.FIREBASE_jSON }}
+        run: python Scraper/krachtbal.py
+          
