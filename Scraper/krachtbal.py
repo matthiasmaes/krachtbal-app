@@ -6,6 +6,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 from os import environ
 from pytz import timezone
+import pytz
 
 class BackendKrachtbal:
 
