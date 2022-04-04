@@ -16,7 +16,8 @@ class BackendKrachtbal:
 		self.url_ranking = 'http://krachtbal.be/rangschikking.asp'
 		self.url_calendar = 'http://krachtbal.be/kalender.asp?club=11_0&reeks=0&datum=0'
 		self.url_base_remote = 'krachtbal/scraped_data/'
-		self.devisions = []
+		self.devisions_ranking = []
+		self.devisions_calendar = []
 
 
 	def getTables(self, url):
@@ -48,7 +49,11 @@ class BackendKrachtbal:
 				except IndexError as error:
 					pass
 
-			table_data[self.devisions[table_index]] = table_results
+			if(processor == 'calendar'):
+				table_data[self.devisions_calendar[table_index]] = table_results
+			elif(processor == 'ranking'):
+				table_data[self.devisions_ranking[table_index]] = table_results
+
 			table_index += 1
 		
 		self.storeFirebase(processor, table_data)
@@ -83,13 +88,16 @@ class BackendKrachtbal:
 			latest_doc.set({'data': value})
 		else: 
 			print('[DEBUG MODE] Not pushing to firebase')
-			print(value)
 
 
 if __name__ == "__main__":
 	worker = BackendKrachtbal(uploadResults = True)
-	worker.devisions = worker.getDevisons(worker.getTables(worker.url_ranking))
+
+	worker.devisions_ranking = worker.getDevisons(worker.getTables(worker.url_ranking))
 	ranking = worker.tableToJson(worker.getTables(worker.url_ranking), 'ranking')
+	
+	worker.devisions_calendar = worker.getDevisons(worker.getTables(worker.url_calendar))
 	calendar = worker.tableToJson(worker.getTables(worker.url_calendar), 'calendar')
+
 	synchCalendar = worker.createSynchrCalendar(calendar)
 	worker.storeFirebase('synchCalendar', synchCalendar)

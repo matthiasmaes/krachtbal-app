@@ -193,30 +193,17 @@ class _MyHomePageState extends State<MyHomePage> {
       '1NHB',
       '1NDA',
       '1NDB',
-      '2NHA',
-      '2NHB',
-      '1LH',
       '1LD',
       '2LH',
-      'REG D/2LD A',
-      'REG D/2LD B',
-      'REG HA',
-      'REG HB',
-      'RRL',
       'U18J',
       'U18M',
       'U16JA',
-      'U16JB',
-      'U16M',
       'U14JA',
-      'U14JB',
       'U14M',
       'U12A',
       'U12B',
       'U12 Titel',
-      'U12NA',
-      'U12NB',
-      'U12NC'
+      'U12NA'
     ]
         .map(
           (entry) => Row(
@@ -294,21 +281,16 @@ class _MyHomePageState extends State<MyHomePage> {
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
-                if (widget.calendarData
-                    .containsKey(selectedDevisions.elementAt(index))) {
-                  return CustomWidgetCardsCalender(
-                    data:
-                        widget.calendarData[selectedDevisions.elementAt(index)],
-                    title: selectedDevisions.elementAt(index),
-                  );
-                }
+                return CustomWidgetCardsCalender(
+                  data: widget.calendarData[selectedDevisions.elementAt(index)],
+                  title: selectedDevisions.elementAt(index),
+                );
               },
               childCount: selectedDevisions.length,
             ),
           ),
         );
       } else {
-        // MAKE THIS INTO SCORE
         return SliverPadding(
           padding: EdgeInsets.zero,
           sliver: CustomWidgetCardsScore(
