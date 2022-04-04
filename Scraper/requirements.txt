@@ -1,4 +1,4 @@
 beautifulsoup4==4.10.0
 firebase_admin==5.2.0
-pysftp==0.2.9
+pytz==2022.1
 requests==2.27.1
