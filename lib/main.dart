@@ -265,6 +265,7 @@ class _MyHomePageState extends State<MyHomePage> {
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
+                print(widget.rankingData[selectedDevisions.elementAt(index)]);
                 return CustomWidgetCardsRanking(
                   data: widget.rankingData[selectedDevisions.elementAt(index)],
                   title: selectedDevisions.elementAt(index),
@@ -290,9 +291,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       } else {
-        print(widget.synchCalendarData
-            .where((x) => selectedDevisions.contains(x['devision']))
-            .toList());
         return SliverPadding(
           padding: EdgeInsets.zero,
           sliver: CustomWidgetCardsScore(

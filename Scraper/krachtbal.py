@@ -50,7 +50,7 @@ class BackendKrachtbal:
 					elif(processor == 'synchCalendar'):
 						table_results.append({'date': table_columns[0].get_text(), 'time': table_columns[1].get_text(), 'home': table_columns[2].get_text(), 'away': table_columns[3].get_text(), 'score_home': table_columns[4].get_text(), 'score_away': table_columns[6].get_text().strip()})
 					elif(processor == 'ranking'):
-						table_results.append({'place': table_columns[0].get_text(), 'club': table_columns[1].get_text(), 'points': table_columns[-1].get_text()})
+						table_results.append({'place': table_columns[0].get_text(), 'club': table_columns[1].get_text(), 'games': table_columns[2].get_text(),'points': table_columns[-1].get_text()})
 				except IndexError as error:
 					pass
 
