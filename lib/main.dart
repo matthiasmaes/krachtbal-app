@@ -1,6 +1,7 @@
 import 'firebase_options.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:krachtbal/widgets_ranking.dart';
@@ -9,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'widgets_calendar.dart';
 import 'widgets_ranking.dart';
 import 'widgets_score.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -111,8 +113,10 @@ void setPersistedData(
 
 class _MyHomePageState extends State<MyHomePage> {
   int index = 0;
-  List<String> pageTitle = ["Rangschikking", "Kalender", "Score"];
-  List<String> englishPageTitles = ["Ranking", "Calendar", "Score"];
+  List<String> pageTitle = ["Rangschikking", "Kalender", "Score", "Profiel"];
+  List<String> englishPageTitles = ["Ranking", "Calendar", "Score", "Profile"];
+
+  FirebaseAuth auth = FirebaseAuth.instance;
 
   List<String> selectedDevisions = [];
 
@@ -122,6 +126,10 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 219, 219, 219),
       bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed, // Fixed
+          backgroundColor: Colors.white,
+          selectedItemColor: const Color.fromARGB(255, 210, 61, 41),
+          unselectedItemColor: Colors.grey,
           currentIndex: index,
           onTap: (int index) {
             setState(() {
@@ -140,6 +148,10 @@ class _MyHomePageState extends State<MyHomePage> {
             BottomNavigationBarItem(
               icon: Icon(Icons.scoreboard_outlined),
               label: 'Score',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
             ),
           ]),
       body: CustomScrollView(slivers: [
@@ -238,68 +250,119 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   SliverPadding sliverBuilder() {
-    if (selectedDevisions.isEmpty) {
+    // if (selectedDevisions.isEmpty) {
+    //   return SliverPadding(
+    //     padding: const EdgeInsets.only(top: 50),
+    //     sliver: SliverToBoxAdapter(
+    //       child: Center(
+    //         child: Column(
+    //           children: const [
+    //             Icon(
+    //               Icons.keyboard_arrow_up_outlined,
+    //               color: Colors.grey,
+    //             ),
+    //             Text(
+    //               'Kies een reeks hierboven om verder te gaan',
+    //               style: TextStyle(fontSize: 15, color: Colors.grey),
+    //             ),
+    //           ],
+    //         ),
+    //       ),
+    //     ),
+    //   );
+    // } else {
+    if (englishPageTitles[index] == 'Ranking') {
       return SliverPadding(
-        padding: const EdgeInsets.only(top: 50),
-        sliver: SliverToBoxAdapter(
-          child: Center(
-            child: Column(
-              children: const [
-                Icon(
-                  Icons.keyboard_arrow_up_outlined,
-                  color: Colors.grey,
-                ),
-                Text(
-                  'Kies een reeks hierboven om verder te gaan',
-                  style: TextStyle(fontSize: 15, color: Colors.grey),
-                ),
-              ],
-            ),
+        padding: EdgeInsets.zero,
+        sliver: SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (BuildContext context, int index) {
+              print(widget.rankingData[selectedDevisions.elementAt(index)]);
+              return CustomWidgetCardsRanking(
+                data: widget.rankingData[selectedDevisions.elementAt(index)],
+                title: selectedDevisions.elementAt(index),
+              );
+            },
+            childCount: selectedDevisions.length,
           ),
         ),
       );
+    } else if (englishPageTitles[index] == 'Calendar') {
+      return SliverPadding(
+        padding: EdgeInsets.zero,
+        sliver: SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (BuildContext context, int index) {
+              return CustomWidgetCardsCalender(
+                data: widget.calendarData[selectedDevisions.elementAt(index)],
+                title: selectedDevisions.elementAt(index),
+              );
+            },
+            childCount: selectedDevisions.length,
+          ),
+        ),
+      );
+    } else if (englishPageTitles[index] == 'Profile') {
+      return SliverPadding(
+          padding: EdgeInsets.zero,
+          sliver: SliverToBoxAdapter(
+            child: OutlinedButton(
+              onPressed: () async {
+                debugPrint('Received click');
+
+                if (FirebaseAuth.instance.currentUser == null) {
+                  debugPrint('Sign in');
+
+                  try {
+                    signInWithGoogle();
+                    // final credential = await FirebaseAuth.instance
+                    //     .signInWithEmailAndPassword(
+                    //         email: 'matthias.maes@outlook.com',
+                    //         password: 'Azerty123');
+                    debugPrint(FirebaseAuth.instance.currentUser?.email);
+                  } on FirebaseAuthException catch (e) {
+                    if (e.code == 'user-not-found') {
+                      print('No user found for that email.');
+                    } else if (e.code == 'wrong-password') {
+                      print('Wrong password provided for that user.');
+                    }
+                  }
+                } else {
+                  await FirebaseAuth.instance.signOut();
+                  debugPrint('Sign out');
+                }
+              },
+              child: const Text('Sign in'),
+            ),
+          ));
     } else {
-      if (englishPageTitles[index] == 'Ranking') {
-        return SliverPadding(
-          padding: EdgeInsets.zero,
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                print(widget.rankingData[selectedDevisions.elementAt(index)]);
-                return CustomWidgetCardsRanking(
-                  data: widget.rankingData[selectedDevisions.elementAt(index)],
-                  title: selectedDevisions.elementAt(index),
-                );
-              },
-              childCount: selectedDevisions.length,
-            ),
-          ),
-        );
-      } else if (englishPageTitles[index] == 'Calendar') {
-        return SliverPadding(
-          padding: EdgeInsets.zero,
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                return CustomWidgetCardsCalender(
-                  data: widget.calendarData[selectedDevisions.elementAt(index)],
-                  title: selectedDevisions.elementAt(index),
-                );
-              },
-              childCount: selectedDevisions.length,
-            ),
-          ),
-        );
-      } else {
-        return SliverPadding(
-          padding: EdgeInsets.zero,
-          sliver: CustomWidgetCardsScore(
-            data: widget.synchCalendarData
-                .where((x) => selectedDevisions.contains(x['devision']))
-                .toList(),
-          ),
-        );
-      }
+      return SliverPadding(
+        padding: EdgeInsets.zero,
+        sliver: CustomWidgetCardsScore(
+          data: widget.synchCalendarData
+              .where((x) => selectedDevisions.contains(x['devision']))
+              .toList(),
+        ),
+      );
+      // }
     }
+  }
+
+  Future<UserCredential> signInWithGoogle() async {
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 }

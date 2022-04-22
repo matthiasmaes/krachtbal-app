@@ -73,7 +73,7 @@ class CustomWidgetCardsRankingState extends State<CustomWidgetCardsRanking> {
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5.0),
                             child: Text(
-                              entry['points'] + '(' + entry['games'] + ')',
+                              entry['points'] + ' (' + entry['games'] + ')',
                               style: TextStyle(
                                 color: entry['club'].contains('Buggenhout')
                                     ? const Color.fromARGB(255, 210, 61, 41)
